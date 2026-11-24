@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>رنة — مراسلة حقيقية (نموذج أولي)</title>
+<style>
+:root{
+  --teal:#0D5C55; --teal2:#0D9488; --amber:#F5A524;
+  --bg:#F4F2EC; --card:#FFFFFF; --ink:#1D2422; --mut:#6B7470; --line:#E4E0D6;
+  --bubble-me:#0D9488; --bubble-me-ink:#fff; --bubble-them:#EDEBE3; --bubble-them-ink:#1D2422;
+}
+.dark{
+  --bg:#101614; --card:#1A211E; --ink:#EDEAE2; --mut:#9AA39E; --line:#2A332F;
+  --bubble-me:#0D9488; --bubble-me-ink:#fff; --bubble-them:#242D29; --bubble-them-ink:#EDEAE2;
+}
+*{box-sizing:border-box; margin:0; padding:0}
+body{font-family:'Segoe UI',Tahoma,Arial,sans-serif; background:var(--bg); color:var(--ink); min-height:100dvh; display:flex; justify-content:center}
+#app{width:100%; max-width:430px; min-height:100dvh; background:var(--bg); display:flex; flex-direction:column}
+header{background:var(--teal); color:#fff; padding:14px 16px; display:flex; align-items:center; gap:10px}
+header img{width:34px; height:34px; border-radius:10px}
+header h1{font-size:19px; font-weight:700}
+header .sp{flex:1}
+header button{background:none; border:none; color:#fff; font-size:20px; cursor:pointer; padding:4px 8px}
+.view{flex:1; display:flex; flex-direction:column; padding:16px}
+.view[hidden]{display:none}
+.card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px}
+.field{margin-bottom:12px}
+.field label{display:block; font-size:13px; color:var(--mut); margin-bottom:6px}
+.field input{width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:12px; background:var(--bg); color:var(--ink); font-size:15px; font-family:inherit}
+.btn{background:var(--amber); color:#23190a; border:none; border-radius:12px; padding:13px; width:100%; font-size:16px; font-weight:700; cursor:pointer; font-family:inherit}
+.btn.alt{background:var(--teal2); color:#fff; margin-top:10px}
+.err{color:#C0392B; font-size:13px; margin-top:10px; min-height:18px}
+.note{font-size:12.5px; color:var(--mut); margin-top:14px; line-height:1.7}
+.row{display:flex; align-items:center; gap:12px; padding:13px 10px; border-bottom:1px solid var(--line); cursor:pointer}
+.row:hover{background:var(--card)}
+.avatar{width:46px; height:46px; border-radius:50%; background:var(--teal2); color:#fff; display:flex; align-items:center; justify-content:center; font-size:19px; font-weight:700; flex-shrink:0}
+.row .meta{flex:1; min-width:0}
+.row .nm{font-weight:700; font-size:15.5px}
+.row .pv{font-size:13px; color:var(--mut); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.unread{background:var(--amber); color:#23190a; border-radius:999px; min-width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; padding:0 6px}
+.empty{color:var(--mut); text-align:center; padding:40px 10px; font-size:14.5px; line-height:1.8}
+#msgs{flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:8px; padding:14px 12px}
+.msg{max-width:78%; padding:9px 13px; border-radius:16px; font-size:15px; line-height:1.55; word-break:break-word}
+.msg.me{align-self:flex-start; background:var(--bubble-me); color:var(--bubble-me-ink); border-start-start-radius:4px}
+.msg.them{align-self:flex-end; background:var(--bubble-them); color:var(--bubble-them-ink); border-start-end-radius:4px}
+.msg small{display:block; font-size:10.5px; opacity:.75; margin-top:3px}
+#composer{display:flex; gap:8px; padding:10px 12px; border-top:1px solid var(--line); background:var(--card)}
+#composer input{flex:1; padding:11px 14px; border:1px solid var(--line); border-radius:999px; background:var(--bg); color:var(--ink); font-size:15px; font-family:inherit}
+#composer button{background:var(--teal2); color:#fff; border:none; border-radius:999px; width:46px; height:46px; font-size:18px; cursor:pointer}
+.back{background:none; border:none; color:#fff; font-size:15px; cursor:pointer; font-family:inherit}
+.whois{font-size:13px; opacity:.85}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <button id="backBtn" title="رجوع" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button>
+    <img src="/logo.png" alt="رنة" id="logoImg">
+    <div><h1 id="appTitle">رنة</h1><div class="whois" id="whois">مراسلة حقيقية — نموذج أولي</div></div>
+    <span class="sp"></span>
+    <button id="darkBtn" title="الوضع الداكن"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 13A8.5 8.5 0 1 1 11 4a7 7 0 0 0 9 9z"/></svg></button>
+    <button id="logoutBtn" title="تسجيل الخروج" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></button>
+  </header>
+
+  <div class="view" id="authView">
+    <div class="card">
+      <div class="field"><label>اسم المستخدم</label><input id="u" autocomplete="username"></div>
+      <div class="field"><label>كلمة السر (٦ حروف أو أكتر)</label><input id="p" type="password" autocomplete="current-password"></div>
+      <div class="field" id="nameWrap" hidden><label>اسمك الظاهر</label><input id="n"></div>
+      <button class="btn" id="loginBtn">دخول</button>
+      <button class="btn alt" id="regBtn">حساب جديد</button>
+      <div class="err" id="authErr"></div>
+      <hr style="border:none;border-top:1px solid var(--line);margin:16px 0">
+      <div class="field"><label>أو برقم الموبايل (بكود تحقق)</label><input id="ph" inputmode="tel" placeholder="+2010..."></div>
+      <div class="field" id="codeWrap" hidden><label>كود التحقق</label><input id="code" inputmode="numeric" maxlength="6"></div>
+      <button class="btn alt" id="phoneBtn">ابعت الكود</button>
+      <button class="btn alt" id="googleBtn" style="background:#fff;color:#1D2422;border:1px solid var(--line)">دخول بحساب Google</button>
+      <div class="err" id="phoneErr"></div>
+      <div class="note" id="authNote">نموذج أولي حقيقي: الحسابات والرسايل بتتخزن على السيرفر وبتوصل للطرف التاني فعلًا. لسه من غير تشفير طرف-لطرف ولا إشعارات.</div>
+    </div>
+  </div>
+
+  <div class="view" id="listView" hidden>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <input id="lookupQ" placeholder="اسم مستخدم أو رقم موبايل" style="flex:1;padding:11px 14px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font-size:14.5px;font-family:inherit">
+      <button class="btn" id="lookupBtn" style="width:auto;padding:11px 18px">بحث</button>
+    </div>
+    <div class="err" id="lookupErr"></div>
+    <div id="convos"></div>
+    <div class="note" style="margin-top:auto">الخصوصية أولًا: مفيش قايمة بكل المسجلين. تقدر تبدأ محادثة بس مع حد تعرف اسم المستخدم أو رقمه.</div>
+  </div>
+
+  <div class="view" id="chatView" hidden style="padding:0">
+    <div id="msgs"></div>
+    <div id="composer"><input id="t" placeholder="اكتب رسالة…"><button id="sendBtn">➤</button></div>
+  </div>
+</div>
+<script>
+const $ = (id) => document.getElementById(id);
+const S = { token: sessionStorage.getItem('ranna_token'), me: sessionStorage.getItem('ranna_user'), peer: null, poll: null };
+const api = async (m, p, data) => {
+  const r = await fetch(p, { method: m, headers: { 'content-type': 'application/json', ...(S.token ? { 'x-session': S.token } : {}) }, body: data ? JSON.stringify(data) : undefined });
+  return { status: r.status, body: await r.json() };
+};
+const show = (v) => { ['authView','listView','chatView'].forEach(x => $(x).hidden = x !== v); $('logoutBtn').hidden = v === 'authView'; };
+const esc = (s) => { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; };
+
+$('darkBtn').onclick = () => document.body.classList.toggle('dark');
+$('logoutBtn').onclick = () => { sessionStorage.clear(); location.reload(); };
+
+// adopt session coming back from the Google redirect
+if (location.hash.startsWith('#session=')) {
+  const h = new URLSearchParams(location.hash.slice(1));
+  sessionStorage.setItem('ranna_token', h.get('session'));
+  sessionStorage.setItem('ranna_user', h.get('user'));
+  location.hash = ''; location.reload();
+}
+
+let PHONE = '';
+$('phoneBtn').onclick = async () => {
+  if ($('codeWrap').hidden) {
+    PHONE = $('ph').value.trim();
+    const { status, body } = await api('POST', '/api/phone/start', { phone: PHONE });
+    if (status !== 200) return $('phoneErr').textContent = 'رقم الموبايل مش صحيح';
+    $('codeWrap').hidden = false; $('phoneBtn').textContent = 'تأكيد الكود';
+    $('phoneErr').textContent = '';
+    $('authNote').textContent = body.mode === 'dev' ? 'وضع التجربة: الكود بيتكتب في سجل السيرفر (مفيش مزوّد رسايل متظبط لسه).' : 'الكود اتبعت في رسالة SMS.';
+    return;
+  }
+  const { status, body } = await api('POST', '/api/phone/verify', { phone: PHONE, code: $('code').value.trim() });
+  if (status !== 200) return $('phoneErr').textContent = 'الكود غلط أو انتهت صلاحيته';
+  S.token = body.session; S.me = body.username;
+  sessionStorage.setItem('ranna_token', S.token); sessionStorage.setItem('ranna_user', S.me);
+  enterList();
+};
+$('googleBtn').onclick = async () => {
+  const { body } = await api('GET', '/api/auth/config');
+  if (!body.google) { $('phoneErr').textContent = 'دخول Google محتاج إعداد حساب مطوّر (Google Cloud) من صاحب التطبيق الأول.'; return; }
+  location.href = '/api/auth/google/start';
+};
+
+$('loginBtn').onclick = async () => {
+  const { status, body } = await api('POST', '/api/login', { username: $('u').value.trim(), password: $('p').value });
+  if (status !== 200) return $('authErr').textContent = 'بيانات الدخول مش صحيحة';
+  S.token = body.session; S.me = body.username;
+  sessionStorage.setItem('ranna_token', S.token); sessionStorage.setItem('ranna_user', S.me);
+  enterList();
+};
+$('regBtn').onclick = async () => {
+  if ($('nameWrap').hidden) { $('nameWrap').hidden = false; return; }
+  const { status, body } = await api('POST', '/api/register', { username: $('u').value.trim(), password: $('p').value, name: $('n').value.trim() });
+  if (status !== 200) return $('authErr').textContent = body.error === 'username taken' ? 'الاسم ده محجوز' : 'راجع اسم المستخدم وكلمة السر';
+  S.token = body.session; S.me = body.username;
+  sessionStorage.setItem('ranna_token', S.token); sessionStorage.setItem('ranna_user', S.me);
+  enterList();
+};
+
+async function enterList() {
+  show('listView');
+  $('appTitle').textContent = 'رنة';
+  $('backBtn').hidden = true;
+  $('whois').textContent = 'مسجل كـ ' + S.me;
+  const { body } = await api('GET', '/api/conversations');
+  const html = body.conversations.map(u => `<div class="row" data-u="${esc(u.username)}" data-n="${esc(u.name)}">
+      <div class="avatar">${esc(u.name[0] || '?')}</div>
+      <div class="meta"><div class="nm">${esc(u.name)}</div><div class="pv">${esc(u.text || '')}</div></div>
+      ${u.unread ? '<div class="unread">•</div>' : ''}</div>`);
+  $('convos').innerHTML = html.join('') || '<div class="empty">لسه مفيش محادثات.<br>ابحث فوق باسم مستخدم أو رقم موبايل لحد تعرفه.</div>';
+  document.querySelectorAll('.row').forEach(r => r.onclick = () => openChat(r.dataset.u, r.dataset.n));
+  clearInterval(S.poll);
+  S.poll = setInterval(() => { if (!$('listView').hidden) enterList(); }, 3000);
+}
+$('backBtn').onclick = () => { clearInterval(S.poll); enterList(); };
+$('lookupBtn').onclick = async () => {
+  const q = $('lookupQ').value.trim(); if (!q) return;
+  const { status, body } = await api('GET', '/api/contacts/lookup?q=' + encodeURIComponent(q));
+  if (status !== 200) return $('lookupErr').textContent = status === 429 ? 'محاولات كتير، استنى شوية' : 'مفيش حساب بالاسم أو الرقم ده';
+  $('lookupErr').textContent = '';
+  if (body.user.username === S.me) return $('lookupErr').textContent = 'ده حسابك إنت';
+  openChat(body.user.username, body.user.name);
+};
+
+async function openChat(peer, name) {
+  S.peer = peer; show('chatView');
+  $('appTitle').textContent = name;
+  $('backBtn').hidden = false;
+  const presence = async () => {
+    const { status, body } = await api('GET', '/api/presence?with=' + encodeURIComponent(peer));
+    if (status === 200) $('whois').textContent = body.online ? 'متصل الآن' : 'غير متصل الآن';
+  };
+  await presence();
+  const render = async () => {
+    const { status, body } = await api('GET', '/api/inbox?with=' + encodeURIComponent(peer));
+    if (status !== 200) return;
+    $('msgs').innerHTML = body.messages.map(m =>
+      `<div class="msg ${m.from === S.me ? 'me' : 'them'}">${esc(m.text)}<small>${new Date(m.at).toLocaleTimeString('ar-EG', { hour: 'numeric', minute: '2-digit' })}${m.from === S.me ? (m.read ? ' ✓✓' : ' ✓') : ''}</small></div>`).join('');
+    $('msgs').scrollTop = $('msgs').scrollHeight;
+  };
+  await render();
+  clearInterval(S.poll); S.poll = setInterval(() => { render(); presence(); }, 2000);
+}
+$('sendBtn').onclick = async () => {
+  const text = $('t').value.trim(); if (!text) return;
+  $('t').value = '';
+  await api('POST', '/api/send', { to: S.peer, text });
+  const { body } = await api('GET', '/api/inbox?with=' + encodeURIComponent(S.peer));
+  $('msgs').innerHTML = body.messages.map(m =>
+    `<div class="msg ${m.from === S.me ? 'me' : 'them'}">${esc(m.text)}<small>${new Date(m.at).toLocaleTimeString('ar-EG', { hour: 'numeric', minute: '2-digit' })}${m.from === S.me ? (m.read ? ' ✓✓' : ' ✓') : ''}</small></div>`).join('');
+  $('msgs').scrollTop = $('msgs').scrollHeight;
+};
+$('t').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('sendBtn').click(); });
+
+if (S.token) enterList(); else show('authView');
+</script>
+</body>
+</html>
